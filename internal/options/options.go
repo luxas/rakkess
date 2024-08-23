@@ -22,7 +22,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/corneliusweig/rakkess/internal/constants"
+	"github.com/luxas/rakkess/internal/constants"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 	"k8s.io/client-go/discovery"
 	v1 "k8s.io/client-go/kubernetes/typed/authorization/v1"

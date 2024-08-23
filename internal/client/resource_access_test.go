@@ -22,7 +22,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/corneliusweig/rakkess/internal/client/result"
+	"github.com/luxas/rakkess/internal/client/result"
 	"github.com/stretchr/testify/assert"
 	v1 "k8s.io/api/authorization/v1"
 	apiV1 "k8s.io/apimachinery/pkg/apis/meta/v1"

@@ -20,9 +20,9 @@ import (
 	"context"
 	"testing"
 
-	"github.com/corneliusweig/rakkess/internal/client/result"
-	"github.com/corneliusweig/rakkess/internal/constants"
-	"github.com/corneliusweig/rakkess/internal/options"
+	"github.com/luxas/rakkess/internal/client/result"
+	"github.com/luxas/rakkess/internal/constants"
+	"github.com/luxas/rakkess/internal/options"
 	"github.com/stretchr/testify/assert"
 	v1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

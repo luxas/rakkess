@@ -19,8 +19,8 @@ package cmd
 import (
 	"context"
 
-	rakkess "github.com/corneliusweig/rakkess/internal"
-	"github.com/corneliusweig/rakkess/internal/constants"
+	rakkess "github.com/luxas/rakkess/internal"
+	"github.com/luxas/rakkess/internal/constants"
 	"github.com/spf13/cobra"
 	"k8s.io/klog/v2"
 )
@@ -39,7 +39,7 @@ matrix with verbs in the horizontal and subjects in the vertical direction.
 Note that the effective access right may differ from the shown results due to
 group membership such as 'system:unauthenticated'.
 
-More on https://github.com/corneliusweig/rakkess/blob/v0.5.0/doc/USAGE.md#usage
+More on https://github.com/luxas/rakkess/blob/v0.5.0/doc/USAGE.md#usage
 `
 
 	resourceExamples = `

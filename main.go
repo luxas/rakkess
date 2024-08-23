@@ -19,7 +19,7 @@ package main
 import (
 	"os"
 
-	"github.com/corneliusweig/rakkess/cmd"
+	"github.com/luxas/rakkess/cmd"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	"k8s.io/klog/v2"
 )

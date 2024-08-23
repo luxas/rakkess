@@ -19,7 +19,7 @@ package cmd
 import (
 	"text/template"
 
-	"github.com/corneliusweig/rakkess/internal/version"
+	"github.com/luxas/rakkess/internal/version"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )

@@ -19,8 +19,8 @@ package validation
 import (
 	"fmt"
 
-	"github.com/corneliusweig/rakkess/internal/constants"
-	"github.com/corneliusweig/rakkess/internal/options"
+	"github.com/luxas/rakkess/internal/constants"
+	"github.com/luxas/rakkess/internal/options"
 	"k8s.io/apimachinery/pkg/util/sets"
 )
 

@@ -22,10 +22,10 @@ import (
 	"fmt"
 	"strings"
 
-	rakkess "github.com/corneliusweig/rakkess/internal"
-	"github.com/corneliusweig/rakkess/internal/constants"
-	"github.com/corneliusweig/rakkess/internal/diff"
-	"github.com/corneliusweig/rakkess/internal/options"
+	rakkess "github.com/luxas/rakkess/internal"
+	"github.com/luxas/rakkess/internal/constants"
+	"github.com/luxas/rakkess/internal/diff"
+	"github.com/luxas/rakkess/internal/options"
 	"github.com/spf13/cobra"
 	"k8s.io/klog/v2"
 )
@@ -53,7 +53,7 @@ the same flags as rakkess itself (without the leading --). The flag can be
 repeated.
 For example: --diff-with context=b --diff-with sa=kube-system:job-controller
 
-More on https://github.com/corneliusweig/rakkess/blob/v0.5.0/doc/USAGE.md#usage
+More on https://github.com/luxas/rakkess/blob/v0.5.0/doc/USAGE.md#usage
 `
 
 	rakkessExamples = `

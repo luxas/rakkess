@@ -20,8 +20,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/corneliusweig/rakkess/internal/constants"
-	"github.com/corneliusweig/rakkess/internal/printer"
+	"github.com/luxas/rakkess/internal/constants"
+	"github.com/luxas/rakkess/internal/printer"
 	v1 "k8s.io/api/rbac/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/sets"

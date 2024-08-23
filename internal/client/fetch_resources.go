@@ -19,7 +19,7 @@ package client
 import (
 	"fmt"
 
-	"github.com/corneliusweig/rakkess/internal/options"
+	"github.com/luxas/rakkess/internal/options"
 	"github.com/pkg/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"

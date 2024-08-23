@@ -21,7 +21,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/corneliusweig/rakkess/internal/printer"
+	"github.com/luxas/rakkess/internal/printer"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 

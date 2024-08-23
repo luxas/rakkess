@@ -17,6 +17,7 @@ limitations under the License.
 package result
 
 import (
+	"fmt"
 	"sort"
 	"strings"
 
@@ -39,6 +40,8 @@ type SubjectRef struct {
 
 // SubjectAccess holds the access information of all subjects for the given resource.
 type SubjectAccess struct {
+	// APIGroup restricts the kubernetes API group. "" means "core API"
+	APIGroup string
 	// Resource is the kubernetes resource of this query.
 	Resource string
 	// ResourceName is the name of the kubernetes resource instance of this query.
@@ -50,8 +53,9 @@ type SubjectAccess struct {
 }
 
 // NewSubjectAccess creates a new SubjectAccess with initialized fields.
-func NewSubjectAccess(resource, resourceName string) *SubjectAccess {
+func NewSubjectAccess(apiGroup, resource, resourceName string) *SubjectAccess {
 	return &SubjectAccess{
+		APIGroup:       apiGroup,
 		Resource:       resource,
 		ResourceName:   resourceName,
 		roleToVerbs:    make(map[RoleRef]sets.String),
@@ -83,6 +87,9 @@ func (sa *SubjectAccess) ResolveRoleRef(r RoleRef, subjects []v1.Subject) {
 			Kind:      subject.Kind,
 			Namespace: subject.Namespace,
 		}
+		if s.Name == "upbound:controlplane:admin" {
+			fmt.Println(r.Kind, r.Name)
+		}
 		if verbs, ok := sa.subjectToVerbs[s]; ok {
 			sa.subjectToVerbs[s] = verbs.Union(verbsForRole)
 		} else {
@@ -98,6 +105,9 @@ func (sa *SubjectAccess) MatchRules(ref RoleRef, rule v1.PolicyRule) {
 	if len(rule.ResourceNames) > 0 && !includes(rule.ResourceNames, sa.ResourceName) {
 		return
 	}
+	if !apiGroupMatches(rule.APIGroups, sa.APIGroup) {
+		return
+	}
 
 	for _, r := range rule.Resources {
 		if r == v1.ResourceAll || r == sa.Resource {
@@ -109,6 +119,15 @@ func (sa *SubjectAccess) MatchRules(ref RoleRef, rule v1.PolicyRule) {
 			}
 		}
 	}
+}
+
+func apiGroupMatches(entries []string, target string) bool {
+	for _, entry := range entries {
+		if entry == "*" || entry == target {
+			return true
+		}
+	}
+	return false
 }
 
 func includes(coll []string, x string) bool {
@@ -145,9 +164,9 @@ func (sa *SubjectAccess) Table(verbs []string) *printer.Table {
 		return comp < 0
 	})
 
-	headers := []string{"NAME", "KIND", "SA-NAMESPACE"}
+	headers := printer.TextList("NAME", "KIND", "SA-NAMESPACE")
 	for _, v := range verbs {
-		headers = append(headers, strings.ToUpper(v))
+		headers = append(headers, printer.Text(strings.ToUpper(v)))
 	}
 	p := printer.TableWithHeaders(headers)
 
@@ -165,7 +184,7 @@ func (sa *SubjectAccess) Table(verbs []string) *printer.Table {
 			}
 			outcomes = append(outcomes, o)
 		}
-		intro := []string{s.Name, s.Kind, s.Namespace}
+		intro := printer.TextList(s.Name, s.Kind, s.Namespace)
 		p.AddRow(intro, outcomes...)
 	}
 

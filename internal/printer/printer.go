@@ -19,7 +19,6 @@ package printer
 import (
 	"fmt"
 	"io"
-	"strings"
 	"sync"
 
 	"github.com/corneliusweig/tabwriter"
@@ -48,22 +47,48 @@ const (
 	Err
 )
 
+func (o Outcome) Render(e Env) string {
+	conv := humanreadableAccessCode
+	if e.IsTerminal {
+		conv = colored(conv)
+	}
+	if e.OutputFormat == "ascii-table" {
+		conv = asciiAccessCode
+	}
+	return conv(o)
+}
+
+type Env struct {
+	IsTerminal   bool
+	OutputFormat string
+}
+
+type Renderable interface {
+	Render(Env) string
+}
+
+type Text string
+
+func (t Text) Render(_ Env) string {
+	return string(t)
+}
+
 type Row struct {
-	Intro   []string
+	Intro   []Renderable
 	Entries []Outcome
 }
 type Table struct {
-	Headers []string
+	Headers []Renderable
 	Rows    []Row
 }
 
-func TableWithHeaders(headers []string) *Table {
+func TableWithHeaders(headers []Renderable) *Table {
 	return &Table{
 		Headers: headers,
 	}
 }
 
-func (p *Table) AddRow(intro []string, outcomes ...Outcome) {
+func (p *Table) AddRow(intro []Renderable, outcomes ...Outcome) {
 	row := Row{
 		Intro:   intro,
 		Entries: outcomes,
@@ -74,32 +99,35 @@ func (p *Table) AddRow(intro []string, outcomes ...Outcome) {
 func (p *Table) Render(out io.Writer, outputFormat string) {
 	once.Do(func() { initTerminal(out) })
 
-	conv := humanreadableAccessCode
-	if isTerminal(out) {
-		conv = colored(conv)
-	}
-	if outputFormat == "ascii-table" {
-		conv = asciiAccessCode
-	}
-
 	w := tabwriter.NewWriter(out, 4, 8, 2, ' ', tabwriter.SmashEscape|tabwriter.StripEscape)
 	defer w.Flush()
+
+	env := Env{
+		IsTerminal:   isTerminal(out),
+		OutputFormat: outputFormat,
+	}
 
 	// table header
 	for i, h := range p.Headers {
 		if i == 0 {
-			fmt.Fprint(w, h)
+			fmt.Fprint(w, h.Render(env))
 		} else {
-			fmt.Fprintf(w, "\t%s", h)
+			fmt.Fprintf(w, "\t%s", h.Render(env))
 		}
 	}
 	fmt.Fprint(w, "\n")
 
 	// table body
 	for _, row := range p.Rows {
-		fmt.Fprintf(w, "%s", strings.Join(row.Intro, "\t"))
+		for i, e := range row.Intro {
+			if i != 0 {
+				fmt.Fprintf(w, "\t")
+			}
+			fmt.Fprintf(w, "%s", e.Render(env)) // FIXME
+		}
+		//fmt.Fprintf(w, "%s", strings.Join(row.Intro, "\t"))
 		for _, e := range row.Entries {
-			fmt.Fprintf(w, "\t%s", conv(e)) // FIXME
+			fmt.Fprintf(w, "\t%s", e.Render(env)) // FIXME
 		}
 		fmt.Fprint(w, "\n")
 	}
@@ -148,4 +176,32 @@ func asciiAccessCode(o Outcome) string {
 	default:
 		panic("unknown access code")
 	}
+}
+
+func Bold(in Renderable) Renderable {
+	return RenderableFunc(func(e Env) string {
+		inner := in.Render(e)
+		if !e.IsTerminal {
+			return inner
+		}
+		return fmt.Sprintf("\xff\033[1m%s\033[0m\xff", inner)
+	})
+}
+
+func BoldText(str string) Renderable {
+	return Bold(Text(str))
+}
+
+type RenderableFunc func(Env) string
+
+func (f RenderableFunc) Render(e Env) string {
+	return f(e)
+}
+
+func TextList(strs ...string) []Renderable {
+	list := make([]Renderable, 0, len(strs))
+	for _, str := range strs {
+		list = append(list, Text(str))
+	}
+	return list
 }

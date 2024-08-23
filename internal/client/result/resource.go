@@ -17,6 +17,7 @@ limitations under the License.
 package result
 
 import (
+	"cmp"
 	"sort"
 	"strings"
 
@@ -32,18 +33,36 @@ func (ra ResourceAccess) Table(verbs []string) *printer.Table {
 	for name := range ra {
 		names = append(names, name)
 	}
-	sort.Strings(names)
+	sort.Slice(names, func(i, j int) bool {
+		x, y := names[i], names[j]
+		resourcex, groupx, _ := strings.Cut(x, ".")
+		resourcey, groupy, _ := strings.Cut(y, ".")
+		// first sort by group, then resource
+		if groupx == groupy {
+			return cmp.Less(resourcex, resourcey)
+		}
+		return cmp.Less(groupx, groupy)
+	})
 
 	// table header
-	headers := []string{"NAME"}
+	headers := []printer.Renderable{printer.Text("NAME")}
 	for _, v := range verbs {
-		headers = append(headers, strings.ToUpper(v))
+		headers = append(headers, printer.Text(strings.ToUpper(v)))
 	}
 
 	p := printer.TableWithHeaders(headers)
 
 	// table body
+	lastGroup := ""
 	for _, name := range names {
+		// print an empty line if group changed
+		resource, group, _ := strings.Cut(name, ".")
+		if group != lastGroup {
+			p.AddRow(printer.TextList(" "), printer.None) // at least one "none" outcome needed to get the tabprinter aligning all columns
+			p.AddRow([]printer.Renderable{printer.BoldText(group + ":")}, printer.None)
+			lastGroup = group
+		}
+
 		var outcomes []printer.Outcome
 
 		res := ra[name]
@@ -61,7 +80,7 @@ func (ra ResourceAccess) Table(verbs []string) *printer.Table {
 			}
 			outcomes = append(outcomes, o)
 		}
-		p.AddRow([]string{name}, outcomes...)
+		p.AddRow(printer.TextList(resource), outcomes...)
 	}
 	return p
 }

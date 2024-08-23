@@ -19,6 +19,7 @@ package internal
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/corneliusweig/rakkess/internal/client"
 	"github.com/corneliusweig/rakkess/internal/client/result"
@@ -55,7 +56,7 @@ func Resource(ctx context.Context, opts *options.RakkessOptions) (result.Resourc
 // Subject determines the subjects with access right to the given resource and
 // prints the result as a matrix with verbs in the horizontal and subject names
 // in the vertical direction.
-func Subject(ctx context.Context, opts *options.RakkessOptions, resource, resourceName string) error {
+func Subject(ctx context.Context, opts *options.RakkessOptions, resourceWithOptionalAPIGroup, resourceName string) error {
 	if err := validation.OutputFormat(opts.OutputFormat); err != nil {
 		return err
 	}
@@ -64,12 +65,14 @@ func Subject(ctx context.Context, opts *options.RakkessOptions, resource, resour
 	if err != nil {
 		return errors.Wrap(err, "cannot create k8s REST mapper")
 	}
-	versionedResource, err := mapper.ResourceFor(schema.GroupVersionResource{Resource: resource})
+	// the apiGroup might be unspecified in the query, but will be populated in the response if there were only one such resource
+	resource, apiGroup, _ := strings.Cut(resourceWithOptionalAPIGroup, ".")
+	versionedResource, err := mapper.ResourceFor(schema.GroupVersionResource{Resource: resource, Group: apiGroup})
 	if err != nil {
 		return errors.Wrap(err, "determine requested resource")
 	}
 
-	subjectAccess, err := client.GetSubjectAccess(ctx, opts, versionedResource.Resource, resourceName)
+	subjectAccess, err := client.GetSubjectAccess(ctx, opts, versionedResource.Group, versionedResource.Resource, resourceName)
 	if err != nil {
 		return errors.Wrap(err, "get subject access")
 	}

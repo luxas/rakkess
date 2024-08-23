@@ -57,7 +57,7 @@ func CheckResourceAccess(ctx context.Context, sar authv1.SelfSubjectAccessReview
 				namespace = ""
 			}
 
-			allowedVerbs := sets.NewString(gr.APIResource.Verbs...)
+			allowedVerbs := sets.NewString(gr.APIResource.Verbs...).Insert("*")
 
 			access := make(map[string]result.Access)
 			for _, v := range verbs {

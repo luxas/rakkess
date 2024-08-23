@@ -37,6 +37,7 @@ var (
 		"patch",
 		"delete",
 		"deletecollection",
+		"*",
 	}
 
 	// ValidOutputFormats is the list of valid formats for the result table.

@@ -29,9 +29,9 @@ import (
 // diff.
 func Diff(left, right result.ResourceAccess, verbs []string) *printer.Table {
 	// table header
-	headers := []string{"NAME"}
+	headers := printer.TextList("NAME")
 	for _, v := range verbs {
-		headers = append(headers, strings.ToUpper(v))
+		headers = append(headers, printer.Text(strings.ToUpper(v)))
 	}
 
 	names := make([]string, 0, len(left))
@@ -63,7 +63,7 @@ func Diff(left, right result.ResourceAccess, verbs []string) *printer.Table {
 			outcomes = append(outcomes, o)
 		}
 		if !skip {
-			p.AddRow([]string{name}, outcomes...)
+			p.AddRow(printer.TextList(name), outcomes...)
 		}
 	}
 

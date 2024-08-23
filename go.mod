@@ -1,4 +1,4 @@
-module github.com/corneliusweig/rakkess
+module github.com/luxas/rakkess
 
 require (
 	github.com/blang/semver v3.5.1+incompatible
